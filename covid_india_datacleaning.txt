@@ -1,0 +1,79 @@
+
+--CHECKING DATA--
+
+select *
+from PortfolioProject..Covid_india_data;
+
+-- REMOVING DUPLICATES AND COPYING DATA TO NEW TABLE--
+
+SELECT distinct* INTO Covid_india_clean_data2 FROM PortfolioProject..Covid_india_data;
+
+--STANDARDISE DATE FORMAT--
+
+select [Date Announced],CONVERT(Date,[Date Announced])
+from PortfolioProject..Covid_india_data;
+
+ALTER TABLE PortfolioProject..Covid_india_data
+ADD [Date change Announced] Date;
+
+Update PortfolioProject..Covid_india_data
+SET [Date change Announced] = CONVERT(Date,[Date Announced])
+
+--CHECKING GENDER COLUMNS VALUES--
+
+select distinct(Gender) as gender, COUNT(*) as numberofrecords
+from PortfolioProject..Covid_india_data
+GROUP BY gender
+
+
+--CHECKING Age Bracket COLUMNS VALUES-
+
+select distinct [Age Bracket] 
+from PortfolioProject..Covid_india_data
+
+--Change M and F to male and female in "gender" field
+
+select Gender,
+CASE when Gender = 'M' then 'male'
+     when Gender = 'F' then 'female'
+	 ELSE Gender
+	 END
+From PortfolioProject..Covid_india_data
+
+UPDATE PortfolioProject..Covid_india_data 
+SET Gender = CASE 
+     when Gender = 'M' then 'male'
+     when Gender = 'F' then 'female'
+	 ELSE Gender
+	 END
+ 
+ --CLEANING DETECTED STATE COLUMN USING STATE CODE--
+
+select distinct [Detected State],[State code]
+from PortfolioProject..Covid_india_data
+order by [Detected State],[State code]
+
+
+UPDATE PortfolioProject..Covid_india_data 
+SET PortfolioProject..Covid_india_data.[Detected State] = 'Andhra Pradesh'  
+WHERE PortfolioProject..Covid_india_data.[State code] = 'AP'
+
+
+--CHANGING STATUS NAME COLUMN VALUES 'Migrated_Other' TO 'others' 
+
+select distinct [Current Status]
+from PortfolioProject..Covid_india_data
+
+UPDATE PortfolioProject..Covid_india_data 
+SET PortfolioProject..Covid_india_data.[Current Status] = 'others'  
+WHERE PortfolioProject..Covid_india_data.[Current Status] = 'Migrated_Other'
+
+--DELETING NULL ROWS IN CURRENT STATUS COLUMN--
+
+delete from PortfolioProject..Covid_india_data
+where [Current Status] is null
+
+--DROPING DATE AND TIME COLUMN--
+
+ALTER TABLE PortfolioProject..Covid_india_data 
+DROP COLUMN [Date Announced]
